@@ -19,8 +19,11 @@ def detect(save_txt=False, save_img=False, save_json=False):
     # Initialize
     device = torch_utils.select_device(device='cpu' if ONNX_EXPORT else opt.device)
     if os.path.exists(out):
-        shutil.rmtree(out)  # delete output folder
-    os.makedirs(out)  # make new output folder
+        if opt.no_overwrite is None:
+            shutil.rmtree(out)  # delete output folder
+            os.makedirs(out)  # make new output folder
+    else:
+        os.makedirs(out)  # make new output folder
 
     # Initialize model
     model = Darknet(opt.cfg, img_size)
@@ -180,6 +183,7 @@ if __name__ == '__main__':
     parser.add_argument('--weights', type=str, default='weights/yolov3-spp.weights', help='path to weights file')
     parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
+    parser.add_argument('--no-overwrite', action='store_true', help='Do not delete and recreate the output folder')
     parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.5, help='iou threshold for non-maximum suppression')
